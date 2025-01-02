@@ -1,0 +1,30 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: clang build src",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-fcolor-diagnostics",
+                "-fansi-escape-codes",
+                "-std=c++17",
+                "-g",
+                "${workspaceFolder}/src/*.cpp", // 假设源文件为 .cpp 文件
+                "-o",
+                "${workspaceFolder}/out/main" // 输出到 out 目录并命名为 program
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compile all source files in the src directory into a single executable in the out directory."
+        }
+    ],
+    "version": "2.0.0"
+}
