@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <fstream>
 
+#include "ThreadPool.hpp"
+
 LogSystem& log_sys() {
     static LogSystem sys;
     return sys;
@@ -23,42 +25,28 @@ const std::string& Log::info() { return _info; }
 
 std::shared_ptr<Log> LogSystem::new_log(LogLevel _level,
                                         const std::string& _info) {
-    LogID id = rand();
-    auto log = std::make_shared<Log>(id, _level, time(NULL), _info);
-    {
+    auto time = std::chrono::system_clock::now();
+    auto log = std::make_shared<Log>(0, _level, time, _info);
+
+    thread_pool().push([this, log]() {
         std::unique_lock lock(mu);
-        _data.insert({id, log});
-    }
+        _data.push_back(log);
+    });
     return log;
 }
 
-std::shared_ptr<Log> LogSystem::get_log(LogID _id) {
-    std::unique_lock lock(mu);
-    auto iter = _data.find(_id);
-    if (iter == _data.end()) {
-        return nullptr;
-    }
-    return iter->second;
-}
+std::shared_ptr<Log> LogSystem::get_log(LogID _id) { return nullptr; }
 
-std::shared_ptr<Log> LogSystem::out_to_file(const std::string& _file_name) {
+bool LogSystem::out_to_file(const std::string& _file_name) {
     auto file = std::fstream(_file_name, std::ios_base::app);
     if (!file) {
-        char buffer[256];
-        snprintf(buffer, sizeof(buffer),
-                 "LogSystem::out_to_file "
-                 "无法打开所给定的文件以生成日志！文件:%s",
-                 _file_name.c_str());
-        return log_sys().new_log(LogLevel::Warn, buffer);
+        return false;
     }
     std::vector<std::shared_ptr<Log>> _temp;
 
     {
         std::unique_lock lock(mu);
-        _temp.reserve(_data.size());
-        for (const auto& log : _data) {
-            _temp.push_back(log.second);
-        }
+        _temp = _data;
     }
 
     std::sort(_temp.begin(), _temp.end(),
@@ -68,7 +56,12 @@ std::shared_ptr<Log> LogSystem::out_to_file(const std::string& _file_name) {
     for (const auto& log : _temp) {
         // 将时间戳转换为结构体 tm
         LogTime time = log->time();
-        struct tm* timeInfo = localtime(&time);
+        auto timeT = std::chrono::system_clock::to_time_t(time);
+        struct tm* timeInfo = localtime(&timeT);
+
+        auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(
+                            time.time_since_epoch()) %
+                        1000;
 
         char time_buffer[128];
         // 格式化时间为字符串，格式为 YYYY-MM-DD HH:MM:SS
@@ -76,25 +69,14 @@ std::shared_ptr<Log> LogSystem::out_to_file(const std::string& _file_name) {
                  timeInfo);
         static char i0[3][16] = {"INFO", "WARN", "ERROR"};
 
-        file << time_buffer << ":[" << i0[(int)log->level()] << "] "
-             << log->info() << "\n";
+        file << time_buffer << ":" << millisec.count() << " ["
+             << i0[(int)log->level()] << "] " << log->info() << "\n";
         if (file.fail()) {
             file.close();
-
-            char buffer[256];
-            snprintf(buffer, sizeof(buffer),
-                     "LogSystem::out_to_file "
-                     "日志文件写入错误！文件:%s",
-                     _file_name.c_str());
-            return log_sys().new_log(LogLevel::Warn, buffer);
+            return false;
         }
     }
     file.close();
 
-    char buffer[256];
-    snprintf(buffer, sizeof(buffer),
-             "LogSystem::out_to_file "
-             "日志信息写入文件成功！共写入:%zu 条日志.",
-             _temp.size());
-    return log_sys().new_log(LogLevel::Info, buffer);
+    return true;
 }

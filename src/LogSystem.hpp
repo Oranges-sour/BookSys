@@ -1,6 +1,7 @@
 #ifndef __LOG_SYSTEM__
 #define __LOG_SYSTEM__
 
+#include <chrono>
 #include <functional>
 #include <map>
 #include <memory>
@@ -10,7 +11,7 @@
 
 using LogID = int;
 
-using LogTime = time_t;
+using LogTime = std::chrono::system_clock::time_point;
 
 enum class LogLevel { Info, Warn, Error };
 
@@ -37,11 +38,11 @@ class LogSystem {
 
     std::shared_ptr<Log> get_log(LogID _id);
 
-    std::shared_ptr<Log> out_to_file(const std::string& _file_name);
+    bool out_to_file(const std::string& _file_name);
 
    private:
     std::mutex mu;
-    std::map<LogID, std::shared_ptr<Log>> _data;
+    std::vector<std::shared_ptr<Log>> _data;
 };
 
 LogSystem& log_sys();

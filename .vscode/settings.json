@@ -70,6 +70,7 @@
         "map": "cpp",
         "print": "cpp",
         "forward_list": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "shared_mutex": "cpp"
     }
 }

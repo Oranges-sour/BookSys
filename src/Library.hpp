@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <shared_mutex>
 
 class Log;
 
@@ -18,8 +19,6 @@ struct Book {
 
 class Library {
    public:
-    Library();
-
     /*
     _lib_file_list是图书数据库的文件
      对象构造后会异步的加载图书数据库，通过_call_back返回进度
@@ -30,6 +29,9 @@ class Library {
     void load_data(const std::string& _lib_file,
                    const std::function<void(std::shared_ptr<Log>)>& _call_back);
 
+    void save_data(const std::string& _lib_file,
+                   const std::function<void(std::shared_ptr<Log>)>& _call_back);
+
     void insert_book(
         const Book& _book,
         const std::function<void(std::shared_ptr<Log>)>& _call_back);
@@ -38,15 +40,16 @@ class Library {
         const std::string& _isbn,
         const std::function<void(std::shared_ptr<Log>)>& _call_back);
 
-    void find_book(const std::string& _isbn,
-                   const std::function<void(std::shared_ptr<Log>)>& _call_back);
+    void find_book(
+        const std::string& _isbn,
+        const std::function<void(Book&&, std::shared_ptr<Log>)>& _call_back);
 
     void update_book(
         const std::string& _isbn, const Book& _book,
         const std::function<void(std::shared_ptr<Log>)>& _call_back);
 
    private:
-    std::mutex mu;
+    std::shared_mutex mu;
     std::map<std::string, Book> _data;
 };
 
