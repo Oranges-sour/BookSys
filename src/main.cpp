@@ -2,9 +2,9 @@
 #include <random>
 #include <thread>
 
-#include "ncurses.h"
 #include "Library.hpp"
 #include "LogSystem.hpp"
+#include "ncurses.h"
 using namespace std;
 using namespace std::chrono;
 
@@ -12,43 +12,7 @@ Library lib;
 
 std::string rs(size_t length);
 
-
-void draw_input_box(int start_y, int start_x, int width, int height,
-                    const char *label) {
-    // 画输入框边框
-    mvprintw(start_y - 1, start_x, "%s", label);
-    for (int i = 0; i < width; ++i) {
-        mvaddch(start_y, start_x + i, '-');
-        mvaddch(start_y + height - 1, start_x + i, '-');
-    }
-    for (int i = 0; i < height; ++i) {
-        mvaddch(start_y + i, start_x, '|');
-        mvaddch(start_y + i, start_x + width - 1, '|');
-    }
-    mvaddch(start_y, start_x, '+');
-    mvaddch(start_y, start_x + width - 1, '+');
-    mvaddch(start_y + height - 1, start_x, '+');
-    mvaddch(start_y + height - 1, start_x + width - 1, '+');
-}
-
 int main() {
-    // auto t0 = steady_clock::now();
-    // lib.load_data("data1.txt", [t0](std::shared_ptr<Log> log) {
-    //     // for (int i = 1; i <= 100000; ++i) {
-    //     //     lib.insert_book({rs(10), rs(5), rs(5), rs(5)},
-    //     //                     [](std::shared_ptr<Log> log) {});
-    //     // }
-    //     auto t1 = steady_clock::now();
-    //     cout << "数据库构建完成！"
-    //          << duration_cast<milliseconds>(t1 - t0).count() << "ms" << endl;
-    // });
-    // int kkk;
-    // scanf("%d", &kkk);
-    // lib.save_data("data1.txt", [](std::shared_ptr<Log> log) {});
-    // std::this_thread::sleep_for(300ms);
-    // cout << log_sys().out_to_file("log1.txt") << endl;
-
-
     setlocale(LC_ALL, "");
     return 0;
 }
