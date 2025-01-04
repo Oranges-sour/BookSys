@@ -12,7 +12,9 @@ UI& ui() {
 
 UI::UI() {
     _fresh = false;
-    _input_mode = true;
+    _input_mode = false;
+    _input_x = 0;
+    _input_y = 0;
 }
 
 void UI::init() {
@@ -62,6 +64,8 @@ bool UI::run() {
         int ch = getch();
         if (ch != ERR) {
             sc->keyboard(ch);
+
+            this->interupt();
         }
     }
     if (_input_mode) {
@@ -76,6 +80,7 @@ bool UI::run() {
         noecho();
         curs_set(0);
         _input_mode = false;
+        this->interupt();
     }
 
     return true;
@@ -103,6 +108,10 @@ void Scene::draw() {
     refresh();
 }
 
+void Scene::input(const std::string& str) {}
+
+void Scene::notice(int _param) {}
+
 void Scene::keyboard(int ch) {
     if (ch == KEY_RIGHT) {
         sel_idx += 1;
@@ -126,8 +135,9 @@ void Scene::keyboard(int ch) {
     }
 }
 
-Button::Button(const std::string& _label, int x, int y)
-    : label(_label), x(x), y(y), selected(false) {}
+Button::Button(const std::string& _label, int x, int y,
+               const std::function<void()>& _func)
+    : label(_label), x(x), y(y), selected(false), _func(_func) {}
 
 void Button::draw() {
     if (selected) {
@@ -144,7 +154,10 @@ Text::Text(const std::string& _label, int x, int y)
 
 void Text::draw() { mvprintw(y, x, "%s", label.c_str()); }
 
-Input::Input(const std::string& _label, int x, int y, int w)
-    : label(_label), x(x), y(y), w(w) {}
+Input::Input(const std::string& _label, int x, int y, int w,
+             std::function<void(const std::string&)>& _func)
+    : label(_label), x(x), y(y), w(w), _func(_func) {}
 
-void Input::draw() { mvprintw(y, x, "input:%s", label.c_str()); }
+void Input::draw() { 
+    
+    mvprintw(y, x, "input:%s", label.c_str()); }

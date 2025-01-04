@@ -22,9 +22,9 @@ std::string rs(size_t length);
 int main() {
     ui().init();
 
-    Scene sc;
-    sc.add_button(Button{"Start", 3, 3});
-    sc.add_button(Button{"Quit", 3, 4});
+    auto sc = make_shared<Scene>();
+    sc->add_button(Button{"Start", 3, 3});
+    sc->add_button(Button{"Quit", 3, 4});
     ui().push(sc);
 
     while (ui().run()) {

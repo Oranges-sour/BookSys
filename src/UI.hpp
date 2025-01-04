@@ -1,6 +1,7 @@
 #ifndef __UI_H__
 #define __UI_H__
 
+#include <functional>
 #include <stack>
 #include <string>
 #include <vector>
@@ -11,7 +12,10 @@ class Button {
     int x, y;           // 按钮的位置
     bool selected;      // 是否被选中
 
-    Button(const std::string& _label, int x, int y);
+    std::function<void()> _func;
+
+    Button(const std::string& _label, int x, int y,
+           const std::function<void()>& _func);
     void draw();
 };
 
@@ -31,19 +35,24 @@ struct Input {
     int w;
     bool selected;  // 是否被选中
 
-    Input(const std::string& _label, int x, int y, int w);
+    std::function<void(const std::string&)> _func;
+
+    Input(const std::string& _label, int x, int y, int w,
+          std::function<void(const std::string&)>& _func);
     void draw();
 };
 
 class Scene {
    public:
-    void draw();
+    virtual void init();
 
-    void keyboard(int ch);
+    virtual void draw();
 
-    void input(const std::string& str);
+    virtual void keyboard(int ch);
 
-    void notice(int _param);
+    virtual void input(const std::string& str);
+
+    virtual void notice(int _param);
 
     void add_button(const Button& _button);
     void add_text(const Text& _text);
