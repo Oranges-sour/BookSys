@@ -8,13 +8,9 @@
                 "-fcolor-diagnostics",
                 "-fansi-escape-codes",
                 "-std=c++17",
-                "-I/opt/homebrew/opt/ncurses/include/ncuesesw",
-                "-I/opt/homebrew/opt/ncurses/include",
-                
-                "-L/opt/homebrew/opt/ncurses/lib",
                 "-lcurses",
                 "-g",
-                "${workspaceFolder}/src/*.cpp", // 假设源文件为 .cpp 文件
+                "${workspaceFolder}/src/*/*.cpp", // 假设源文件为 .cpp 文件
                 "-o",
                 "${workspaceFolder}/out/main" // 输出到 out 目录并命名为 program
             ],

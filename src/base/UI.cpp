@@ -39,6 +39,7 @@ void UI::on_input(int x, int y) {
 }
 
 void UI::push(std::shared_ptr<Scene> scene) {
+    scene->init();
     _scene.push(scene);
     this->interupt();
 }

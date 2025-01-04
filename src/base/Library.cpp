@@ -6,6 +6,11 @@
 #include "LogSystem.hpp"
 #include "ThreadPool.hpp"
 
+Library& library() {
+    static Library lib;
+    return lib;
+}
+
 void Library::load_data(
     const std::string& _lib_file,
     const std::function<void(std::shared_ptr<Log>)>& _call_back) {

@@ -53,4 +53,6 @@ class Library {
     std::map<std::string, Book> _data;
 };
 
+Library& library();
+
 #endif

@@ -1,3 +1,5 @@
+#include <ncurses.h>
+
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -6,15 +8,13 @@
 #include <stack>
 #include <thread>
 
+#include "../user/MyScene.hpp"
 #include "Library.hpp"
 #include "LogSystem.hpp"
 #include "ThreadPool.hpp"
 #include "UI.hpp"
-#include "ncurses.h"
 using namespace std;
 using namespace std::chrono;
-
-Library lib;
 
 std::string rs(size_t length);
 
@@ -23,16 +23,7 @@ int main() {
     setlocale(LC_ALL, "");
     ui().init();
 
-    auto sc = make_shared<Scene>();
-    sc->add_item(make_shared<Button>(
-        "Start", 3, 3, [](shared_ptr<Button> _btn) { _btn->label += "a"; }));
-    sc->add_item(make_shared<Button>("Quit", 3, 5, [](shared_ptr<Button>) {}));
-    sc->add_item(make_shared<Text>("Hello", 3, 1));
-    sc->add_item(make_shared<Input>(
-        "ISBN号", 3, 7, 15,
-        [](shared_ptr<Input> _input, const string& str) { _input->x += 1; }));
-    sc->add_item(make_shared<Box>(3, 11, 2, 2));
-
+    auto sc = make_shared<MyScene>();
     ui().push(sc);
 
     while (ui().run()) {
