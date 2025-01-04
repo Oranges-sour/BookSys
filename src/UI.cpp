@@ -30,25 +30,52 @@ void UI::release() {
 
 void UI::interupt() { _fresh = true; }
 
+void UI::on_input(int x, int y) {
+    _input_mode = true;
+    _input_x = x;
+    _input_y = y;
+}
+
+void UI::push(std::shared_ptr<Scene> scene) {
+    _scene.push(scene);
+    this->interupt();
+}
+
+void UI::pop(int _param) {
+    _scene.pop();
+    if (!_scene.empty()) {
+        _scene.top()->notice(_param);
+    }
+}
+
 bool UI::run() {
     if (_scene.empty()) {
         return false;
     }
     auto& sc = _scene.top();
     if (_fresh) {
-        sc.draw();
+        sc->draw();
         _fresh = false;
     }
 
     if (!_input_mode) {
         int ch = getch();
         if (ch != ERR) {
-            sc.keyboard(ch);
+            sc->keyboard(ch);
         }
     }
-    if(_input_mode) {
-        echo();
-        
+    if (_input_mode) {
+        move(_input_y, _input_x);
+        echo();       // 打开回显以便用户看见输入
+        curs_set(1);  // 显示光标
+        char buffer[1024];
+        mvgetnstr(_input_y, _input_x, buffer, sizeof(buffer));
+
+        sc->input(buffer);
+
+        noecho();
+        curs_set(0);
+        _input_mode = false;
     }
 
     return true;
@@ -117,7 +144,7 @@ Text::Text(const std::string& _label, int x, int y)
 
 void Text::draw() { mvprintw(y, x, "%s", label.c_str()); }
 
-Input::Input(const std::string& _label, int x, int y, int w, int h)
-    : label(_label), x(x), y(y), w(w), h(h) {}
+Input::Input(const std::string& _label, int x, int y, int w)
+    : label(_label), x(x), y(y), w(w) {}
 
 void Input::draw() { mvprintw(y, x, "input:%s", label.c_str()); }

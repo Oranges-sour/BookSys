@@ -28,11 +28,10 @@ struct Input {
    public:
     std::string label;
     int x, y;
-    int w, h;
-    std::string input;
+    int w;
     bool selected;  // 是否被选中
 
-    Input(const std::string& _label, int x, int y, int w, int h);
+    Input(const std::string& _label, int x, int y, int w);
     void draw();
 };
 
@@ -41,6 +40,10 @@ class Scene {
     void draw();
 
     void keyboard(int ch);
+
+    void input(const std::string& str);
+
+    void notice(int _param);
 
     void add_button(const Button& _button);
     void add_text(const Text& _text);
@@ -66,7 +69,7 @@ class UI {
 
     bool run();
 
-    void push(const Scene& scene);
+    void push(std::shared_ptr<Scene> scene);
 
     // param 传递给下一层的数据
     void pop(int _param);
@@ -78,7 +81,7 @@ class UI {
     int _input_x, _input_y;
 
     bool _fresh;
-    std::stack<Scene> _scene;
+    std::stack<std::shared_ptr<Scene>> _scene;
 };
 
 UI& ui();
