@@ -31,6 +31,7 @@ int main() {
     sc->add_item(make_shared<Input>(
         "ISBN号", 3, 7, 15,
         [](shared_ptr<Input> _input, const string& str) { _input->x += 1; }));
+    sc->add_item(make_shared<Box>(3, 11, 2, 2));
 
     ui().push(sc);
 

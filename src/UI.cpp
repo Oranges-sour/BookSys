@@ -122,7 +122,7 @@ void Scene::notice(int _param) {}
 void Scene::keyboard(int ch) {
     if (ch == '\n') {
         unsigned int p = sel_idx % _sel_item.size();
-        ui().on_input(_sel_item[p]->getx(), _sel_item[p]->gety());
+        ui().on_input(_sel_item[p]->getx() + 1, _sel_item[p]->gety() + 1);
     }
     if (ch == KEY_RIGHT) {
         sel_idx += 1;
@@ -217,15 +217,15 @@ int Input::gety() { return y; }
 Box::Box(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {}
 
 void Box::draw() {
-    mvvline(y, x, ACS_VLINE, 2);      // 左边框
-    mvvline(y, x + w, ACS_VLINE, 2);  // 右边框
-
-    mvhline(y + 2, x, ACS_HLINE, w);  // 底部边框
+    mvhline(y, x, ACS_HLINE, w - 1);
+    mvvline(y, x, ACS_VLINE, h - 1);
+    mvvline(y, x + w - 1, ACS_VLINE, h - 1);
+    mvhline(y + h - 1, x, ACS_HLINE, w - 1);
 
     mvaddch(y, x, ACS_ULCORNER);
-    mvaddch(y, x + w, ACS_URCORNER);
-    mvaddch(y + 2, x, ACS_LLCORNER);
-    mvaddch(y + 2, x + w, ACS_LRCORNER);
+    mvaddch(y, x + w - 1, ACS_URCORNER);
+    mvaddch(y + h - 1, x, ACS_LLCORNER);
+    mvaddch(y + h - 1, x + w - 1, ACS_LRCORNER);
 }
 
 void Box::call(shared_ptr<UI_Item>, const string& str) {}
