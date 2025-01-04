@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "(lldb) 启动",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/out/main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/out",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "lldb",
+            "preLaunchTask": "C/C++: clang build src"
+        },
+        {
             "name": "C++ debug",
             "type": "lldb",
             "request": "launch",

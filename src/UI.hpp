@@ -6,44 +6,102 @@
 #include <string>
 #include <vector>
 
-class Button {
+class UI_Item {
    public:
-    std::string label;  // 按钮的文字
-    int x, y;           // 按钮的位置
-    bool selected;      // 是否被选中
-
-    std::function<void(Button&)> _func;
-
-    Button(const std::string& _label, int x, int y,
-           const std::function<void(Button&)>& _func);
-    void draw();
+    virtual void draw() = 0;
+    virtual void call(std::shared_ptr<UI_Item>, const std::string& str) = 0;
+    virtual bool selectable() = 0;
+    virtual void set_select(bool _sel) = 0;
+    virtual int getx() = 0;
+    virtual int gety() = 0;
 };
 
-struct Text {
+class UI_Select {
+   public:
+    UI_Select() : _sel(false) {}
+    bool get() { return _sel; }
+    void set(bool sel) { _sel = sel; };
+
+   private:
+    bool _sel;
+};
+
+class Button : public UI_Item {
+   public:
+    Button(const std::string& _label, int x, int y,
+           const std::function<void(std::shared_ptr<Button>)>& _func);
+
+    virtual void draw() override;
+    virtual void call(std::shared_ptr<UI_Item>,
+                      const std::string& str) override;
+    virtual bool selectable() override;
+    virtual void set_select(bool _sel) override;
+    virtual int getx() override;
+    virtual int gety() override;
+
+    std::string label;  // 按钮的文字
+    int x, y;           // 按钮的位置
+    UI_Select _sel;
+
+    std::function<void(std::shared_ptr<Button>)> _func;
+};
+
+class Text : public UI_Item {
    public:
     std::string label;  // 按钮的文字
     int x, y;           // 按钮的位置
 
     Text(const std::string& _label, int x, int y);
-    void draw();
+    virtual void draw() override;
+    virtual void call(std::shared_ptr<UI_Item>,
+                      const std::string& str) override;
+    virtual bool selectable() override;
+    virtual void set_select(bool _sel) override;
+    virtual int getx() override;
+    virtual int gety() override;
 };
 
-struct Input {
+class Input : public UI_Item {
    public:
+    Input(const std::string& _label, int x, int y, int w,
+          const std::function<void(std::shared_ptr<Input>, const std::string&)>&
+              _func);
+
+    virtual void draw() override;
+    virtual void call(std::shared_ptr<UI_Item>,
+                      const std::string& str) override;
+    virtual bool selectable() override;
+    virtual void set_select(bool _sel) override;
+    virtual int getx() override;
+    virtual int gety() override;
+
     std::string label;
     int x, y;
     int w;
-    bool selected;  // 是否被选中
+    UI_Select _sel;
 
-    std::function<void(Input&, const std::string&)> _func;
+    std::function<void(std::shared_ptr<Input>, const std::string&)> _func;
+};
 
-    Input(const std::string& _label, int x, int y, int w,
-          const std::function<void(Input&, const std::string&)>& _func);
-    void draw();
+class Box : public UI_Item {
+   public:
+    Box(int x, int y, int w, int h);
+    virtual void draw() override;
+    virtual void call(std::shared_ptr<UI_Item>,
+                      const std::string& str) override;
+    virtual bool selectable() override;
+    virtual void set_select(bool _sel) override;
+    virtual int getx() override;
+    virtual int gety() override;
+
+    int x, y;
+    int w, h;
 };
 
 class Scene {
    public:
+    Scene();
+
     virtual void init();
 
     virtual void draw();
@@ -54,14 +112,11 @@ class Scene {
 
     virtual void notice(int _param);
 
-    void add_button(const Button& _button);
-    void add_text(const Text& _text);
-    void add_input(const Input& _input);
+    void add_item(std::shared_ptr<UI_Item> _item);
 
    private:
-    std::vector<Button> _button;
-    std::vector<Text> _text;
-    std::vector<Input> _input;
+    std::vector<std::shared_ptr<UI_Item>> _item;
+    std::vector<std::shared_ptr<UI_Item>> _sel_item;
 
     unsigned int sel_idx;
 };

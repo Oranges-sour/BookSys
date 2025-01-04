@@ -48,13 +48,14 @@ void UI::pop(int _param) {
     if (!_scene.empty()) {
         _scene.top()->notice(_param);
     }
+    this->interupt();
 }
 
 bool UI::run() {
     if (_scene.empty()) {
         return false;
     }
-    auto& sc = _scene.top();
+    auto sc = _scene.top();
     if (_fresh) {
         sc->draw();
         _fresh = false;
@@ -88,58 +89,40 @@ bool UI::run() {
     return true;
 }
 
+Scene::Scene() : sel_idx(0) {}
+
 void Scene::init() {}
 
-void Scene::add_button(const Button& button) {
-    _button.push_back(button);
-    ui().interupt();
-}
-
-void Scene::add_text(const Text& button) {
-    _text.push_back(button);
-    ui().interupt();
-}
-
-void Scene::add_input(const Input& button) {
-    _input.push_back(button);
-    ui().interupt();
+void Scene::add_item(shared_ptr<UI_Item> _item) {
+    if (_item->selectable()) {
+        _sel_item.push_back(_item);
+    }
+    this->_item.push_back(_item);
 }
 
 void Scene::draw() {
     clear();
-    for (auto& it : _button) {
-        it.draw();
-    }
-
-    for (auto& it : _text) {
-        it.draw();
-    }
-
-    for (auto& it : _input) {
-        it.draw();
+    box(stdscr, ACS_VLINE, ACS_HLINE);
+    for (auto& it : _item) {
+        it->draw();
     }
     refresh();
 }
 
 void Scene::input(const std::string& str) {
-    unsigned int p = sel_idx % (_button.size() + _input.size());
-    if (p >= _button.size()) {
-        p -= _button.size();
-        _input[p]._func(_input[p], str);
+    if (_sel_item.size() == 0) {
+        return;
     }
+    unsigned int p = sel_idx % _sel_item.size();
+    _sel_item[p]->call(_sel_item[p], str);
 }
 
 void Scene::notice(int _param) {}
 
 void Scene::keyboard(int ch) {
     if (ch == '\n') {
-        unsigned int p = sel_idx % (_button.size() + _input.size());
-        if (p >= _button.size()) {
-            p -= _button.size();
-            ui().on_input(_input[p].x + 1, _input[p].y + 1);
-        } else {
-            _button[p]._func(_button[p]);
-        }
+        unsigned int p = sel_idx % _sel_item.size();
+        ui().on_input(_sel_item[p]->getx(), _sel_item[p]->gety());
     }
     if (ch == KEY_RIGHT) {
         sel_idx += 1;
@@ -147,44 +130,57 @@ void Scene::keyboard(int ch) {
     if (ch == KEY_LEFT) {
         sel_idx -= 1;
     }
-    for (auto& it : _button) {
-        it.selected = false;
-    }
-    for (auto& it : _input) {
-        it.selected = false;
-    }
 
-    unsigned int p = sel_idx % (_button.size() + _input.size());
-    if (p >= _button.size()) {
-        p -= _button.size();
-        _input[p].selected = true;
-    } else {
-        _button[p].selected = true;
+    for (auto it : _sel_item) {
+        it->set_select(false);
     }
+    unsigned int p = sel_idx % _sel_item.size();
+    _sel_item[p]->set_select(true);
 }
 
 Button::Button(const std::string& _label, int x, int y,
-               const std::function<void(Button&)>& _func)
-    : label(_label), x(x), y(y), selected(false), _func(_func) {}
+               const std::function<void(shared_ptr<Button>)>& _func)
+    : label(_label), x(x), y(y), _func(_func) {}
 
 void Button::draw() {
-    if (selected) {
+    if (_sel.get()) {
         attron(A_REVERSE);  // 选中的按钮高亮
     }
     mvprintw(y, x, "%s", label.c_str());
-    if (selected) {
+    if (_sel.get()) {
         attroff(A_REVERSE);
     }
 }
+
+void Button::call(shared_ptr<UI_Item> _ptr, const string& str) {
+    _func(dynamic_pointer_cast<Button>(_ptr));
+}
+
+bool Button::selectable() { return true; }
+
+void Button::set_select(bool _sel) { this->_sel.set(_sel); }
+
+int Button::getx() { return x; }
+int Button::gety() { return y; }
 
 Text::Text(const std::string& _label, int x, int y)
     : label(_label), x(x), y(y) {}
 
 void Text::draw() { mvprintw(y, x, "%s", label.c_str()); }
 
-Input::Input(const std::string& _label, int x, int y, int w,
-             const std::function<void(Input&, const std::string&)>& _func)
-    : label(_label), x(x), y(y), w(w), _func(_func), selected(false) {}
+void Text::call(shared_ptr<UI_Item> _ptr, const string& str) {}
+
+bool Text::selectable() { return false; }
+
+void Text::set_select(bool _sel) {}
+
+int Text::getx() { return x; }
+int Text::gety() { return y; }
+
+Input::Input(
+    const std::string& _label, int x, int y, int w,
+    const std::function<void(shared_ptr<Input>, const std::string&)>& _func)
+    : label(_label), x(x), y(y), w(w), _func(_func) {}
 
 void Input::draw() {
     mvhline(y, x, ACS_HLINE, w);  // 输入框的顶部边框
@@ -198,11 +194,45 @@ void Input::draw() {
     mvaddch(y + 2, x, ACS_LLCORNER);
     mvaddch(y + 2, x + w, ACS_LRCORNER);
 
-    if (selected) {
+    if (_sel.get()) {
         attron(A_REVERSE);  // 选中的按钮高亮
     }
     mvprintw(y, x, "%s ", label.c_str());
-    if (selected) {
+    if (_sel.get()) {
         attroff(A_REVERSE);
     }
 }
+
+void Input::call(shared_ptr<UI_Item> _ptr, const string& str) {
+    _func(dynamic_pointer_cast<Input>(_ptr), str);
+}
+
+bool Input::selectable() { return true; }
+
+void Input::set_select(bool _sel) { this->_sel.set(_sel); }
+
+int Input::getx() { return x; }
+int Input::gety() { return y; }
+
+Box::Box(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) {}
+
+void Box::draw() {
+    mvvline(y, x, ACS_VLINE, 2);      // 左边框
+    mvvline(y, x + w, ACS_VLINE, 2);  // 右边框
+
+    mvhline(y + 2, x, ACS_HLINE, w);  // 底部边框
+
+    mvaddch(y, x, ACS_ULCORNER);
+    mvaddch(y, x + w, ACS_URCORNER);
+    mvaddch(y + 2, x, ACS_LLCORNER);
+    mvaddch(y + 2, x + w, ACS_LRCORNER);
+}
+
+void Box::call(shared_ptr<UI_Item>, const string& str) {}
+
+bool Box::selectable() { return false; }
+
+void Box::set_select(bool) {}
+
+int Box::getx() { return x; }
+int Box::gety() { return y; }
