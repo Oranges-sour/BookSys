@@ -12,7 +12,7 @@
                 "-I/opt/homebrew/opt/ncurses/include",
                 
                 "-L/opt/homebrew/opt/ncurses/lib",
-                "-lcursesw",
+                "-lcurses",
                 "-g",
                 "${workspaceFolder}/src/*.cpp", // 假设源文件为 .cpp 文件
                 "-o",

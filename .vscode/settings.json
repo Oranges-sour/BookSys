@@ -71,6 +71,8 @@
         "print": "cpp",
         "forward_list": "cpp",
         "fstream": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "thread": "cpp",
+        "random": "cpp"
     }
 }
