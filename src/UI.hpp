@@ -1,9 +1,9 @@
 #ifndef __UI_H__
 #define __UI_H__
 
+#include <stack>
 #include <string>
 #include <vector>
-#include <stack>
 
 class Button {
    public:
@@ -54,6 +54,33 @@ class Scene {
     unsigned int sel_idx;
 };
 
-std::stack<Scene>& scene_stack();
+class UI {
+   public:
+    UI();
+
+    void init();
+
+    void release();
+
+    void interupt();
+
+    bool run();
+
+    void push(const Scene& scene);
+
+    // param 传递给下一层的数据
+    void pop(int _param);
+
+    void on_input(int x, int y);
+
+   private:
+    bool _input_mode;
+    int _input_x, _input_y;
+
+    bool _fresh;
+    std::stack<Scene> _scene;
+};
+
+UI& ui();
 
 #endif

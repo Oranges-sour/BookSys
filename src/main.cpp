@@ -20,37 +20,17 @@ std::string rs(size_t length);
 
 // 主函数
 int main() {
-    initscr();  // 初始化 ncurses
-    noecho();   // 不回显输入
-    cbreak();   // 立即响应按键
-    nodelay(stdscr, TRUE);
-    keypad(stdscr, TRUE);  // 开启键盘输入
-    curs_set(0);           // 隐藏光标
+    ui().init();
 
     Scene sc;
     sc.add_button(Button{"Start", 3, 3});
     sc.add_button(Button{"Quit", 3, 4});
+    ui().push(sc);
 
-    scene_stack().push(sc);
-
-    while (!scene_stack().empty()) {
-        auto& sc = scene_stack().top();
-        sc.draw();
-
-        int key = 0;
-        while (true) {
-            int ch = getch();
-            if (ch == ERR) {
-                this_thread::sleep_for(1ms);
-            } else {
-                key = ch;
-                break;
-            }
-        }
-        sc.keyboard(key);
+    while (ui().run()) {
+        this_thread::sleep_for(1ms);
     }
-
-    endwin();  // 退出 ncurses 模式
+    ui().release();
     return 0;
 }
 

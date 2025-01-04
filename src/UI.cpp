@@ -1,10 +1,57 @@
 #include "UI.hpp"
 
-#include "ncurses.h"
+#include <thread>
 
-std::stack<Scene>& scene_stack() {
-    static std::stack<Scene> _s;
-    return _s;
+#include "ncurses.h"
+using namespace std;
+
+UI& ui() {
+    static UI _ui;
+    return _ui;
+}
+
+UI::UI() {
+    _fresh = false;
+    _input_mode = true;
+}
+
+void UI::init() {
+    initscr();  // 初始化 ncurses
+    noecho();   // 不回显输入
+    cbreak();   // 立即响应按键
+    nodelay(stdscr, TRUE);
+    keypad(stdscr, TRUE);  // 开启键盘输入
+    curs_set(0);           // 隐藏光标
+}
+
+void UI::release() {
+    endwin();  // 退出 ncurses 模式
+}
+
+void UI::interupt() { _fresh = true; }
+
+bool UI::run() {
+    if (_scene.empty()) {
+        return false;
+    }
+    auto& sc = _scene.top();
+    if (_fresh) {
+        sc.draw();
+        _fresh = false;
+    }
+
+    if (!_input_mode) {
+        int ch = getch();
+        if (ch != ERR) {
+            sc.keyboard(ch);
+        }
+    }
+    if(_input_mode) {
+        echo();
+        
+    }
+
+    return true;
 }
 
 void Scene::add_button(const Button& button) { _button.push_back(button); }
