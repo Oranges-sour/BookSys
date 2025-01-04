@@ -12,10 +12,10 @@ class Button {
     int x, y;           // 按钮的位置
     bool selected;      // 是否被选中
 
-    std::function<void()> _func;
+    std::function<void(Button&)> _func;
 
     Button(const std::string& _label, int x, int y,
-           const std::function<void()>& _func);
+           const std::function<void(Button&)>& _func);
     void draw();
 };
 
@@ -35,10 +35,10 @@ struct Input {
     int w;
     bool selected;  // 是否被选中
 
-    std::function<void(const std::string&)> _func;
+    std::function<void(Input&, const std::string&)> _func;
 
     Input(const std::string& _label, int x, int y, int w,
-          std::function<void(const std::string&)>& _func);
+          const std::function<void(Input&, const std::string&)>& _func);
     void draw();
 };
 

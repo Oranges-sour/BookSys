@@ -20,11 +20,18 @@ std::string rs(size_t length);
 
 // 主函数
 int main() {
+    setlocale(LC_ALL, "");
     ui().init();
 
     auto sc = make_shared<Scene>();
-    sc->add_button(Button{"Start", 3, 3});
-    sc->add_button(Button{"Quit", 3, 4});
+    sc->add_button(
+        Button{"Start", 3, 3, [](Button& _btn) { _btn.label += "a"; }});
+    sc->add_button(Button{"Quit", 3, 5, [](Button&) {}});
+    sc->add_text(Text{"Hello", 3, 1});
+    sc->add_input(
+        Input{"ISBN号", 3, 7, 15,
+              [](Input& _input, const string& str) { _input.x += 1; }});
+
     ui().push(sc);
 
     while (ui().run()) {
