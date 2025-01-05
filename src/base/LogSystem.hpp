@@ -1,5 +1,5 @@
-#ifndef __LOG_SYSTEM__
-#define __LOG_SYSTEM__
+#ifndef __LOG_SYSTEM_H__
+#define __LOG_SYSTEM_H__
 
 #include <chrono>
 #include <functional>

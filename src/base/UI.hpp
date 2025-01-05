@@ -8,6 +8,7 @@
 
 class UI_Item {
    public:
+    virtual ~UI_Item() = default;
     virtual void draw() = 0;
     virtual void call(std::shared_ptr<UI_Item>, const std::string& str) = 0;
     virtual bool selectable() = 0;
@@ -32,14 +33,13 @@ class Button : public UI_Item {
     Button(const std::string& _label, int x, int y,
            const std::function<void(std::shared_ptr<Button>)>& _func);
 
-    virtual void draw() override;
-    virtual void call(std::shared_ptr<UI_Item>,
-                      const std::string& str) override;
-    virtual bool selectable() override;
-    virtual bool inputable() override;
-    virtual void set_select(bool _sel) override;
-    virtual int getx() override;
-    virtual int gety() override;
+    void draw() override;
+    void call(std::shared_ptr<UI_Item>, const std::string& str) override;
+    bool selectable() override;
+    bool inputable() override;
+    void set_select(bool _sel) override;
+    int getx() override;
+    int gety() override;
 
     std::string label;  // 按钮的文字
     int x, y;           // 按钮的位置
@@ -54,14 +54,14 @@ class Text : public UI_Item {
     int x, y;           // 按钮的位置
 
     Text(const std::string& _label, int x, int y);
-    virtual void draw() override;
-    virtual void call(std::shared_ptr<UI_Item>,
-                      const std::string& str) override;
-    virtual bool selectable() override;
-    virtual bool inputable() override;
-    virtual void set_select(bool _sel) override;
-    virtual int getx() override;
-    virtual int gety() override;
+    void draw() override;
+    void call(std::shared_ptr<UI_Item>,
+              const std::string& str) override;
+    bool selectable() override;
+    bool inputable() override;
+    void set_select(bool _sel) override;
+    int getx() override;
+    int gety() override;
 };
 
 class Input : public UI_Item {
@@ -70,14 +70,14 @@ class Input : public UI_Item {
           const std::function<void(std::shared_ptr<Input>, const std::string&)>&
               _func);
 
-    virtual void draw() override;
-    virtual void call(std::shared_ptr<UI_Item>,
-                      const std::string& str) override;
-    virtual bool selectable() override;
-    virtual bool inputable() override;
-    virtual void set_select(bool _sel) override;
-    virtual int getx() override;
-    virtual int gety() override;
+    void draw() override;
+    void call(std::shared_ptr<UI_Item>,
+              const std::string& str) override;
+    bool selectable() override;
+    bool inputable() override;
+    void set_select(bool _sel) override;
+    int getx() override;
+    int gety() override;
 
     std::string label;
     int x, y;
@@ -90,14 +90,14 @@ class Input : public UI_Item {
 class Box : public UI_Item {
    public:
     Box(int x, int y, int w, int h);
-    virtual void draw() override;
-    virtual void call(std::shared_ptr<UI_Item>,
-                      const std::string& str) override;
-    virtual bool selectable() override;
-    virtual bool inputable() override;
-    virtual void set_select(bool _sel) override;
-    virtual int getx() override;
-    virtual int gety() override;
+    void draw() override;
+    void call(std::shared_ptr<UI_Item>,
+              const std::string& str) override;
+    bool selectable() override;
+    bool inputable() override;
+    void set_select(bool _sel) override;
+    int getx() override;
+    int gety() override;
 
     int x, y;
     int w, h;
@@ -111,15 +111,17 @@ class Scene {
 
     virtual void draw();
 
-    virtual void keyboard(int ch);
+    /*virtual*/ void keyboard(int ch);
 
-    virtual void input(const std::string& str);
+    /*virtual*/ void input(const std::string& str);
 
     virtual void notice(int _param);
 
     void add_item(std::shared_ptr<UI_Item> _item);
 
    private:
+    void update_select();
+
     std::vector<std::shared_ptr<UI_Item>> _item;
     std::vector<std::shared_ptr<UI_Item>> _sel_item;
 
@@ -134,7 +136,7 @@ class UI {
 
     void release();
 
-    void interupt();
+    void refresh();
 
     bool run();
 

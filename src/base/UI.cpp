@@ -30,7 +30,7 @@ void UI::release() {
     endwin();  // 退出 ncurses 模式
 }
 
-void UI::interupt() { _fresh = true; }
+void UI::refresh() { _fresh = true; }
 
 void UI::on_input(int x, int y) {
     _input_mode = true;
@@ -41,7 +41,7 @@ void UI::on_input(int x, int y) {
 void UI::push(std::shared_ptr<Scene> scene) {
     scene->init();
     _scene.push(scene);
-    this->interupt();
+    this->refresh();
 }
 
 void UI::pop(int _param) {
@@ -49,7 +49,7 @@ void UI::pop(int _param) {
     if (!_scene.empty()) {
         _scene.top()->notice(_param);
     }
-    this->interupt();
+    this->refresh();
 }
 
 bool UI::run() {
@@ -67,7 +67,7 @@ bool UI::run() {
         if (ch != ERR) {
             sc->keyboard(ch);
 
-            this->interupt();
+            this->refresh();
         }
     }
     if (_input_mode) {
@@ -83,7 +83,7 @@ bool UI::run() {
         noecho();
         curs_set(0);
         _input_mode = false;
-        this->interupt();
+        this->refresh();
         nodelay(stdscr, TRUE);
     }
 
@@ -99,6 +99,7 @@ void Scene::add_item(shared_ptr<UI_Item> _item) {
         _sel_item.push_back(_item);
     }
     this->_item.push_back(_item);
+    this->update_select();
 }
 
 void Scene::draw() {
@@ -122,11 +123,14 @@ void Scene::notice(int _param) {}
 
 void Scene::keyboard(int ch) {
     if (ch == '\n') {
-        unsigned int p = sel_idx % _sel_item.size();
-        if (_sel_item[p]->inputable()) {
-            ui().on_input(_sel_item[p]->getx() + 1, _sel_item[p]->gety() + 1);
-        } else {
-            _sel_item[p]->call(_sel_item[p], string{});
+        if (_sel_item.size() > 0) {
+            unsigned int p = sel_idx % _sel_item.size();
+            if (_sel_item[p]->inputable()) {
+                ui().on_input(_sel_item[p]->getx() + 1,
+                              _sel_item[p]->gety() + 1);
+            } else {
+                _sel_item[p]->call(_sel_item[p], string{});
+            }
         }
     }
     if (ch == KEY_RIGHT) {
@@ -135,12 +139,17 @@ void Scene::keyboard(int ch) {
     if (ch == KEY_LEFT) {
         sel_idx -= 1;
     }
+    this->update_select();
+}
 
-    for (auto it : _sel_item) {
-        it->set_select(false);
+void Scene::update_select() {
+    if (_sel_item.size() > 0) {
+        for (auto it : _sel_item) {
+            it->set_select(false);
+        }
+        unsigned int p = sel_idx % _sel_item.size();
+        _sel_item[p]->set_select(true);
     }
-    unsigned int p = sel_idx % _sel_item.size();
-    _sel_item[p]->set_select(true);
 }
 
 Button::Button(const std::string& _label, int x, int y,
