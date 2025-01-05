@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) 启动",
+            "name": "lldb启动",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/out/main",
@@ -16,15 +16,16 @@
             "externalConsole": true,
             "MIMode": "lldb",
             "preLaunchTask": "C/C++: clang build src"
-        },
-        {
-            "name": "C++ debug",
-            "type": "lldb",
-            "request": "launch",
-            "program": "${workspaceFolder}/out/main",
-            "args": [],
-            "cwd": "${workspaceFolder}/out",
-            "preLaunchTask": "C/C++: clang build src"
         }
+        // ,
+        // {
+        //     "name": "C++ debug",
+        //     "type": "lldb",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/out/main",
+        //     "args": [],
+        //     "cwd": "${workspaceFolder}/out",
+        //     "preLaunchTask": "C/C++: clang build src"
+        // }
     ]
 }
