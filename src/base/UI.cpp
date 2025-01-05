@@ -123,7 +123,11 @@ void Scene::notice(int _param) {}
 void Scene::keyboard(int ch) {
     if (ch == '\n') {
         unsigned int p = sel_idx % _sel_item.size();
-        ui().on_input(_sel_item[p]->getx() + 1, _sel_item[p]->gety() + 1);
+        if (_sel_item[p]->inputable()) {
+            ui().on_input(_sel_item[p]->getx() + 1, _sel_item[p]->gety() + 1);
+        } else {
+            _sel_item[p]->call(_sel_item[p], string{});
+        }
     }
     if (ch == KEY_RIGHT) {
         sel_idx += 1;
@@ -159,6 +163,8 @@ void Button::call(shared_ptr<UI_Item> _ptr, const string& str) {
 
 bool Button::selectable() { return true; }
 
+bool Button::inputable() { return false; }
+
 void Button::set_select(bool _sel) { this->_sel.set(_sel); }
 
 int Button::getx() { return x; }
@@ -172,6 +178,8 @@ void Text::draw() { mvprintw(y, x, "%s", label.c_str()); }
 void Text::call(shared_ptr<UI_Item> _ptr, const string& str) {}
 
 bool Text::selectable() { return false; }
+
+bool Text::inputable() { return false; }
 
 void Text::set_select(bool _sel) {}
 
@@ -210,6 +218,8 @@ void Input::call(shared_ptr<UI_Item> _ptr, const string& str) {
 
 bool Input::selectable() { return true; }
 
+bool Input::inputable() { return true; }
+
 void Input::set_select(bool _sel) { this->_sel.set(_sel); }
 
 int Input::getx() { return x; }
@@ -232,6 +242,8 @@ void Box::draw() {
 void Box::call(shared_ptr<UI_Item>, const string& str) {}
 
 bool Box::selectable() { return false; }
+
+bool Box::inputable() { return false; }
 
 void Box::set_select(bool) {}
 
