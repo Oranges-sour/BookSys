@@ -5,7 +5,8 @@
             "label": "C/C++: clang build src",
             "command": "make",
             "args": [
-                "all"
+                "all",
+                "-j"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
