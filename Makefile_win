@@ -5,7 +5,6 @@ LDFLAGS := lib/curses.a -static-libgcc -static-libstdc++ -mconsole  # 使用静�
 SRC_DIR := src
 OUT_DIR := out
 TARGET := $(OUT_DIR)\\main.exe
-DATA_FILE := data\\1
 
 # 手动列出所有 .cpp 文件
 SRCS := \
