@@ -1,1 +1,2 @@
-out/*
+out_mac
+out_win/*/*.o

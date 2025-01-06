@@ -5,7 +5,9 @@
             "label": "C/C++: clang build src",
             "command": "make",
             "args": [
+                "-f Makefile_mac",
                 "all",
+                
                 "-j"
             ],
             "options": {

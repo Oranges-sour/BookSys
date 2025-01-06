@@ -2,7 +2,7 @@
 
 #include <thread>
 
-#include "ncurses.h"
+#include "_ncurses.h"
 using namespace std;
 
 UI& ui() {

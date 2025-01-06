@@ -3,7 +3,7 @@ CXX := /usr/bin/clang++
 CXXFLAGS := -fcolor-diagnostics -fansi-escape-codes -std=c++17 -g
 LDFLAGS := -lcurses
 SRC_DIR := src
-OUT_DIR := out
+OUT_DIR := out_mac
 TARGET := $(OUT_DIR)/main
 DATA_FILE := data/1
 

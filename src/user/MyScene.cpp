@@ -11,7 +11,6 @@
 #include "../base/Library.hpp"
 #include "../base/LogSystem.hpp"
 #include "../base/UI.hpp"
-#include "../base/ncurses.h"
 using namespace std;
 using namespace std::chrono;
 
