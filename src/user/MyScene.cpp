@@ -1,6 +1,6 @@
 #include "MyScene.hpp"
 
-#include <ncurses.h>
+#include "../base/ncurses.h"
 
 #include <atomic>
 #include <chrono>
@@ -116,7 +116,7 @@ void DelBookScene::init() {
 
             bool suc = true;
             for (auto ch : isbn_str) {
-                if (!isnumber(ch)) {
+                if (!isdigit(ch)) {
                     suc = false;
                 }
             }
@@ -247,7 +247,7 @@ void EditBookSearchISBNScene::init() {
 
             bool suc = true;
             for (auto ch : isbn_str) {
-                if (!isnumber(ch)) {
+                if (!isdigit(ch)) {
                     suc = false;
                 }
             }
@@ -317,7 +317,7 @@ void EditBookScene::init() {
                 case 1: {
                     bool suc = true;
                     for (auto ch : str) {
-                        if (!isnumber(ch)) {
+                        if (!isdigit(ch)) {
                             suc = false;
                         }
                     }
@@ -463,7 +463,7 @@ void SearchBookISBNScene::init() {
 
             bool suc = true;
             for (auto ch : isbn_str) {
-                if (!isnumber(ch)) {
+                if (!isdigit(ch)) {
                     suc = false;
                 }
             }
@@ -573,7 +573,7 @@ void AddBookScene::init() {
                 case 1: {
                     bool suc = true;
                     for (auto ch : str) {
-                        if (!isnumber(ch)) {
+                        if (!isdigit(ch)) {
                             suc = false;
                         }
                     }
