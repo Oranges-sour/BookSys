@@ -68,14 +68,20 @@ void LobbyScene::init() {
         }));
 
     this->add_item(
-        make_shared<Button>("[ 查询书籍 ]", 3, 7, [](shared_ptr<Button> _btn) {
+        make_shared<Button>("[ 查询书籍 ]", 3, 6, [](shared_ptr<Button> _btn) {
             auto sc = make_shared<SearchBookISBNScene>();
             ui().push(sc);
         }));
 
     this->add_item(make_shared<Button>(
-        "[ 修改书籍信息 ]", 3, 9, [](shared_ptr<Button> _btn) {
+        "[ 修改书籍信息 ]", 3, 7, [](shared_ptr<Button> _btn) {
             auto sc = make_shared<EditBookSearchISBNScene>();
+            ui().push(sc);
+        }));
+
+    this->add_item(
+        make_shared<Button>("[ 删除书籍 ]", 3, 8, [](shared_ptr<Button> _btn) {
+            auto sc = make_shared<DelBookScene>();
             ui().push(sc);
         }));
 
@@ -87,6 +93,94 @@ void LobbyScene::init() {
 
     this->add_item(make_shared<Button>(
         "[ 退出系统 ]", 3, 14, [](shared_ptr<Button> _btn) { ui().pop(0); }));
+}
+
+void DelBookScene::init() {
+    this->add_item(make_shared<Text>("删除书籍", 3, 1));
+
+    this->add_item(make_shared<Text>("请输入要删除的书籍的ISBN号", 3, 5));
+
+    this->add_item(make_shared<Input>(
+        "ISBN号", 3, 7, 15,
+        [this](shared_ptr<Input> _input, const string& str) {
+            if (str.size() == 0) {
+                return;
+            }
+            isbn_str = str;
+
+            bool suc = true;
+            for (auto ch : isbn_str) {
+                if (!isnumber(ch)) {
+                    suc = false;
+                }
+            }
+
+            if (!suc) {
+                auto sc = make_shared<OkScene>("输入的ISBN号格式不正确！");
+                ui().push(sc);
+            } else {
+                library().find_book(
+                    isbn_str, [](Book&& book, shared_ptr<Log> log) {
+                        if (log->ok()) {
+                            auto sc = make_shared<DelBookCheckScene>(book);
+                            ui().push(sc);
+                        } else {
+                            auto sc = make_shared<OkScene>("未找到对应书籍！");
+                            ui().push(sc);
+                        }
+                    });
+            }
+        }));
+
+    this->add_item(make_shared<Button>(
+        "[ 返回 ]", 3, 12, [](shared_ptr<Button> _btn) { ui().pop(0); }));
+}
+
+DelBookCheckScene::DelBookCheckScene(const Book& _book) : _book(_book) {}
+
+void DelBookCheckScene::init() {
+    this->add_item(make_shared<Text>("确定要删除此书吗?", 3, 1));
+
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "ISBN号: %s", _book._isbn.c_str());
+    this->add_item(make_shared<Text>(buffer, 3, 3));
+
+    snprintf(buffer, sizeof(buffer), "书名: %s", _book._name.c_str());
+    this->add_item(make_shared<Text>(buffer, 3, 4));
+
+    snprintf(buffer, sizeof(buffer), "作者: %s", _book._author.c_str());
+    this->add_item(make_shared<Text>(buffer, 3, 5));
+
+    snprintf(buffer, sizeof(buffer), "出版社: %s", _book._publisher.c_str());
+    this->add_item(make_shared<Text>(buffer, 3, 6));
+
+    this->add_item(
+        make_shared<Button>("[ 确定 ]", 3, 12, [this](shared_ptr<Button> _btn) {
+            ui().pop(0);
+            auto sc = make_shared<DelBookSaveScene>(_book._isbn);
+            ui().push(sc);
+        }));
+
+    this->add_item(make_shared<Button>(
+        "[ 取消 ]", 14, 12, [](shared_ptr<Button> _btn) { ui().pop(0); }));
+}
+
+DelBookSaveScene::DelBookSaveScene(const string& str) : isbn_str(str) {}
+
+void DelBookSaveScene::init() {
+    this->add_item(make_shared<Text>("删除书籍中...", 3, 1));
+
+    library().erase_book(isbn_str, [](shared_ptr<Log> log) {
+        if (log->ok()) {
+            ui().pop(NO);
+            auto sc = make_shared<OkScene>("书籍删除成功！");
+            ui().push(sc);
+        } else {
+            ui().pop(NO);
+            auto sc = make_shared<OkScene>("书籍删除失败！");
+            ui().push(sc);
+        }
+    });
 }
 
 void BackupDataScene::init() {
@@ -140,6 +234,9 @@ void EditBookSearchISBNScene::init() {
     this->add_item(make_shared<Input>(
         "ISBN号", 3, 7, 15,
         [this](shared_ptr<Input> _input, const string& str) {
+            if (str.size() == 0) {
+                return;
+            }
             isbn_str = str;
 
             bool suc = true;

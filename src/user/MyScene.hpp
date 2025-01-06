@@ -37,6 +37,32 @@ class LobbyScene : public Scene {
     void init() override;
 };
 
+class DelBookScene : public Scene {
+   public:
+    void init() override;
+
+   private:
+    std::string isbn_str;
+};
+
+class DelBookCheckScene : public Scene {
+   public:
+    DelBookCheckScene(const Book& _book);
+    void init() override;
+
+   private:
+    Book _book;
+};
+
+class DelBookSaveScene : public Scene {
+   public:
+    DelBookSaveScene(const std::string& str);
+    void init() override;
+
+   private:
+    std::string isbn_str;
+};
+
 class BackupDataScene : public Scene {
    public:
     void init() override;
