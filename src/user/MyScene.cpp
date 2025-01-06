@@ -22,7 +22,7 @@ constexpr int NO = 2;
 MyScene::MyScene() { step = 0; }
 
 void MyScene::init() {
-    this->add_item(make_shared<Text>("图书管理信息系统", 3, 1));
+    this->add_item(make_shared<Text>("图书管理信息系统  刘华邦202315002", 3, 1));
 
     this->add_item(make_shared<Text>("请输入要加载的数据库文件", 3, 5));
 
@@ -59,7 +59,7 @@ void MyScene::notice(int x) {
 }
 
 void LobbyScene::init() {
-    this->add_item(make_shared<Text>("图书管理信息系统  v0.1", 3, 1));
+    this->add_item(make_shared<Text>("图书管理信息系统  v1.0", 3, 1));
 
     this->add_item(make_shared<Button>(
         "[ 数据库基本信息 ]", 3, 5, [](shared_ptr<Button> _btn) {
