@@ -1,7 +1,5 @@
 #include "MyScene.hpp"
 
-#include "../base/ncurses.h"
-
 #include <atomic>
 #include <chrono>
 #include <condition_variable>
@@ -13,6 +11,7 @@
 #include "../base/Library.hpp"
 #include "../base/LogSystem.hpp"
 #include "../base/UI.hpp"
+#include "../base/ncurses.h"
 using namespace std;
 using namespace std::chrono;
 
@@ -22,13 +21,20 @@ constexpr int NO = 2;
 MyScene::MyScene() { step = 0; }
 
 void MyScene::init() {
-    this->add_item(make_shared<Text>("图书管理信息系统  刘华邦202315002", 3, 1));
+    this->add_item(
+        make_shared<Text>("图书管理信息系统  刘华邦202315002", 3, 1));
 
     this->add_item(make_shared<Text>("请输入要加载的数据库文件", 3, 5));
 
     this->add_item(
         make_shared<Input>("数据库文件", 3, 7, 15,
                            [this](shared_ptr<Input> _input, const string& str) {
+                               if (str.size() == 0) {
+                                   ui().pop(0);
+                                   auto sc = make_shared<LobbyScene>();
+                                   ui().push(sc);
+                                   return;
+                               }
                                data_file = str;
                                auto sc = make_shared<LoadDataScene>(data_file);
                                ui().push(sc);
@@ -445,7 +451,6 @@ void LibraryInfoScene::init() {
 
     this->add_item(make_shared<Text>("系统状态: 正常", 3, 5));
     this->add_item(make_shared<Text>("藏书数量: 97541册", 3, 6));
-    this->add_item(make_shared<Text>("借出数量: 351册", 3, 7));
 
     this->add_item(make_shared<Button>(
         "[ 返回 ]", 3, 12, [](shared_ptr<Button> _btn) { ui().pop(0); }));
@@ -506,9 +511,6 @@ void BookInfoScene::init() {
 
     snprintf(buffer, sizeof(buffer), "出版社: %s", _book._publisher.c_str());
     this->add_item(make_shared<Text>(buffer, 3, 6));
-
-    this->add_item(
-        make_shared<Text>("借阅状态: 借出 2024.12.23借出 (借阅35天)", 3, 8));
 
     this->add_item(make_shared<Button>(
         "[ 返回 ]", 3, 11, [](shared_ptr<Button> _btn) { ui().pop(0); }));
