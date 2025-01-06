@@ -55,8 +55,7 @@ class Text : public UI_Item {
 
     Text(const std::string& _label, int x, int y);
     void draw() override;
-    void call(std::shared_ptr<UI_Item>,
-              const std::string& str) override;
+    void call(std::shared_ptr<UI_Item>, const std::string& str) override;
     bool selectable() override;
     bool inputable() override;
     void set_select(bool _sel) override;
@@ -71,8 +70,7 @@ class Input : public UI_Item {
               _func);
 
     void draw() override;
-    void call(std::shared_ptr<UI_Item>,
-              const std::string& str) override;
+    void call(std::shared_ptr<UI_Item>, const std::string& str) override;
     bool selectable() override;
     bool inputable() override;
     void set_select(bool _sel) override;
@@ -91,8 +89,7 @@ class Box : public UI_Item {
    public:
     Box(int x, int y, int w, int h);
     void draw() override;
-    void call(std::shared_ptr<UI_Item>,
-              const std::string& str) override;
+    void call(std::shared_ptr<UI_Item>, const std::string& str) override;
     bool selectable() override;
     bool inputable() override;
     void set_select(bool _sel) override;
@@ -147,7 +144,10 @@ class UI {
 
     void on_input(int x, int y);
 
+    void quit();
+
    private:
+    bool _quit;
     bool _input_mode;
     int _input_x, _input_y;
 

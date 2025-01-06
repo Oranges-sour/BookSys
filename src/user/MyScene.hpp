@@ -160,4 +160,29 @@ class OkScene : public Scene {
     std::string title;
 };
 
+class AddBookScene : public Scene {
+   public:
+    void init() override;
+    void update_show();
+
+   private:
+    std::shared_ptr<Input> _input;
+    std::shared_ptr<Text> _t_isbn;
+    std::shared_ptr<Text> _t_name;
+    std::shared_ptr<Text> _t_author;
+    std::shared_ptr<Text> _t_publisher;
+    
+    Book _book;
+    int now_edit;
+};
+
+class AddBookSaveScene : public Scene {
+   public:
+    AddBookSaveScene(const Book& book);
+    void init() override;
+
+   private:
+    Book _book;
+};
+
 #endif

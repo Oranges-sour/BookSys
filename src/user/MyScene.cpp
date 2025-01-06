@@ -36,7 +36,7 @@ void MyScene::init() {
                            }));
 
     this->add_item(make_shared<Button>(
-        "[ 退出系统 ]", 3, 12, [](shared_ptr<Button> _btn) { ui().pop(0); }));
+        "[ 退出系统 ]", 3, 12, [](shared_ptr<Button> _btn) { ui().quit(); }));
 
     // this->add_item(make_shared<Box>(3, 11, 2, 2));
 }
@@ -85,6 +85,12 @@ void LobbyScene::init() {
             ui().push(sc);
         }));
 
+    this->add_item(
+        make_shared<Button>("[ 增加书籍 ]", 3, 9, [](shared_ptr<Button> _btn) {
+            auto sc = make_shared<AddBookScene>();
+            ui().push(sc);
+        }));
+
     this->add_item(make_shared<Button>(
         "[ 备份数据库数据 ]", 3, 11, [](shared_ptr<Button> _btn) {
             auto sc = make_shared<BackupDataScene>();
@@ -92,7 +98,7 @@ void LobbyScene::init() {
         }));
 
     this->add_item(make_shared<Button>(
-        "[ 退出系统 ]", 3, 14, [](shared_ptr<Button> _btn) { ui().pop(0); }));
+        "[ 退出系统 ]", 3, 14, [](shared_ptr<Button> _btn) { ui().quit(); }));
 }
 
 void DelBookScene::init() {
@@ -522,6 +528,142 @@ void LoadDataScene::init() {
             auto sc =
                 make_shared<OkScene>("数据库加载失败, 请确认文件是否正确!");
             ui().push(sc);
+        }
+    });
+}
+
+void AddBookScene::init() {
+    this->add_item(make_shared<Text>("增加新书籍", 3, 1));
+
+    this->add_item(make_shared<Text>("请选择并输入书籍信息", 3, 5));
+
+    this->add_item(
+        make_shared<Button>("[ISBN号]", 3, 6, [this](shared_ptr<Button> _btn) {
+            now_edit = 1;
+            _input->label = "ISBN号";
+        }));
+    this->add_item(
+        make_shared<Button>("[书名]", 11, 6, [this](shared_ptr<Button> _btn) {
+            now_edit = 2;
+            _input->label = "书名";
+        }));
+    this->add_item(
+        make_shared<Button>("[作者]", 17, 6, [this](shared_ptr<Button> _btn) {
+            now_edit = 3;
+            _input->label = "作者";
+        }));
+    this->add_item(
+        make_shared<Button>("[出版社]", 23, 6, [this](shared_ptr<Button> _btn) {
+            now_edit = 4;
+            _input->label = "出版社";
+        }));
+
+    _input = make_shared<Input>(
+        "未选择", 3, 8, 15,
+        [this](shared_ptr<Input> _input, const string& str) {
+            if (now_edit == 0) {
+                auto sc = make_shared<OkScene>("未选择输入项！");
+                ui().push(sc);
+                return;
+            }
+            if (str.size() == 0) {
+                return;
+            }
+            switch (now_edit) {
+                case 1: {
+                    bool suc = true;
+                    for (auto ch : str) {
+                        if (!isnumber(ch)) {
+                            suc = false;
+                        }
+                    }
+
+                    if (!suc) {
+                        auto sc =
+                            make_shared<OkScene>("输入的ISBN号格式不正确！");
+                        ui().push(sc);
+                    } else {
+                        _book._isbn = str;
+                    }
+                } break;
+                case 2:
+                    _book._name = str;
+                    break;
+                case 3:
+                    _book._author = str;
+                    break;
+                case 4:
+                    _book._publisher = str;
+                    break;
+            }
+            update_show();
+        });
+    this->add_item(_input);
+
+    _t_isbn = make_shared<Text>("ISBN号: ", 26, 8);
+    _t_name = make_shared<Text>("书名: ", 26, 9);
+    _t_author = make_shared<Text>("作者: ", 26, 10);
+    _t_publisher = make_shared<Text>("出版社: ", 26, 11);
+
+    this->add_item(_t_isbn);
+    this->add_item(_t_name);
+    this->add_item(_t_author);
+    this->add_item(_t_publisher);
+
+    this->add_item(
+        make_shared<Button>("[ 保存 ]", 3, 15, [this](shared_ptr<Button> _btn) {
+            if (_book._isbn.empty() || _book._name.empty() ||
+                _book._author.empty() || _book._publisher.empty()) {
+                auto sc = make_shared<OkScene>("请填写完整所有信息！");
+                ui().push(sc);
+                return;
+            }
+            ui().pop(0);
+            auto sc = make_shared<AddBookSaveScene>(_book);
+            ui().push(sc);
+        }));
+
+    this->add_item(make_shared<Button>(
+        "[ 取消 ]", 12, 15, [](shared_ptr<Button> _btn) { ui().pop(0); }));
+}
+
+void AddBookScene::update_show() {
+    char buffer[1024];
+    snprintf(buffer, sizeof(buffer), "ISBN号: %s", _book._isbn.c_str());
+    _t_isbn->label = buffer;
+
+    snprintf(buffer, sizeof(buffer), "书名: %s", _book._name.c_str());
+    _t_name->label = buffer;
+
+    snprintf(buffer, sizeof(buffer), "作者: %s", _book._author.c_str());
+    _t_author->label = buffer;
+
+    snprintf(buffer, sizeof(buffer), "出版社: %s", _book._publisher.c_str());
+    _t_publisher->label = buffer;
+}
+
+AddBookSaveScene::AddBookSaveScene(const Book& book) : _book(book) {}
+
+void AddBookSaveScene::init() {
+    this->add_item(make_shared<Text>("正在添加新书籍...", 3, 1));
+
+    library().find_book(_book._isbn, [this](Book&&, shared_ptr<Log> log) {
+        if (log->ok()) {
+            ui().pop(0);
+            auto sc = make_shared<OkScene>("添加失败：该ISBN号已存在！");
+            ui().push(sc);
+        } else {
+            library().insert_book(_book, [](shared_ptr<Log> log) {
+                if (log->ok()) {
+                    ui().pop(0);
+                    auto sc = make_shared<OkScene>("新书籍添加成功！");
+                    ui().push(sc);
+                } else {
+                    ui().pop(0);
+                    auto sc = make_shared<OkScene>("新书籍添加失败！");
+                    ui().push(sc);
+                }
+            });
         }
     });
 }

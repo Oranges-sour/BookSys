@@ -13,6 +13,7 @@ UI& ui() {
 UI::UI() {
     _fresh = false;
     _input_mode = false;
+    _quit = false;
     _input_x = 0;
     _input_y = 0;
 }
@@ -53,8 +54,11 @@ void UI::pop(int _param) {
 }
 
 bool UI::run() {
-    if (_scene.empty()) {
+    if (_quit) {
         return false;
+    }
+    if (_scene.empty()) {
+        return true;
     }
     auto sc = _scene.top();
     if (_fresh) {
@@ -89,6 +93,8 @@ bool UI::run() {
 
     return true;
 }
+
+void UI::quit() { _quit = true; }
 
 Scene::Scene() : sel_idx(0) {}
 
@@ -132,6 +138,12 @@ void Scene::keyboard(int ch) {
                 _sel_item[p]->call(_sel_item[p], string{});
             }
         }
+    }
+    if (ch == KEY_DOWN) {
+        sel_idx += 2;
+    }
+    if (ch == KEY_UP) {
+        sel_idx -= 2;
     }
     if (ch == KEY_RIGHT) {
         sel_idx += 1;
