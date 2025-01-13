@@ -1,2 +1,3 @@
 out_mac
 out_win/*/*.o
+.DS_Store

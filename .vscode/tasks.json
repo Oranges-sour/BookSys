@@ -7,7 +7,6 @@
             "args": [
                 "-f Makefile_mac",
                 "all",
-                
                 "-j"
             ],
             "options": {

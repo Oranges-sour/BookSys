@@ -14,7 +14,7 @@ SRCS := $(wildcard $(SRC_DIR)/*/*.cpp)
 OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OUT_DIR)/%.o, $(SRCS))
 
 # 默认目标
-all: $(TARGET) copy_data
+all: $(TARGET)
 
 # 链接目标
 $(TARGET): $(OBJS)
