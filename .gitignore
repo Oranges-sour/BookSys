@@ -1,4 +1,3 @@
-out_mac
+out_mac/*/*.o
 out_win/*/*.o
 .DS_Store
-out_win/*.exe
